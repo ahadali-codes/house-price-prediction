@@ -1,135 +1,240 @@
 # House Price Prediction
 
-A Python regression portfolio project with a Streamlit interface, reproducible training, data cleaning, and honest held-out evaluation. **The bundled Pakistan-style data is synthetic. Prices and measured errors do not represent Pakistan's housing market.**
+A machine learning application that estimates house prices from property characteristics using Python and Scikit-learn. The project combines reusable data-processing pipelines, regression model comparison, and a Streamlit interface for individual and batch predictions.
 
-## Problem statement
-Estimate a property's price from tabular features and assess how far predictions differ from observed targets. This project demonstrates the machine-learning workflow, not a valuation service.
+> **Dataset:** The included Pakistan-style housing data is synthetic and intended for demonstration. Predictions and evaluation results do not represent actual property values or housing-market performance.
+
+## Overview
+
+This project demonstrates a complete regression workflow, from validating raw data to evaluating a trained model and making predictions through an interactive application.
+
+The model uses property features such as covered area, city, bedrooms, bathrooms, age, condition, and distance from the city center to estimate a price in Pakistani rupees.
 
 ## Features
-- Validate numeric ranges and types; handle duplicates, invalid targets, missing features, and unseen categories.
-- Train-only median/mode imputation, numeric scaling, and one-hot encoding in Scikit-learn pipelines.
-- Compare a median baseline, Ridge regression, and random forest using five-fold training cross-validation.
-- Select the lowest cross-validation MAE, then evaluate on a held-out 20% test set.
-- Report MAE, RMSE, R², baseline MAE, actual-vs-predicted charts, residuals, and CSV predictions.
-- Streamlit single-property prediction, batch prediction, dataset explorer, and evaluation pages.
+
+- **Data preparation:** Validate schemas, convert data types, remove duplicate records, and handle invalid or missing values.
+- **Reusable pipelines:** Combine imputation, scaling, categorical encoding, and regression.
+- **Model comparison:** Evaluate a median-price baseline, Ridge regression, and Random Forest regression.
+- **Reliable evaluation:** Select the model using training-only cross-validation before evaluating the held-out test set.
+- **Interactive predictions:** Estimate prices for individual properties or upload a CSV for batch predictions.
+- **Dataset exploration:** Filter records, inspect distributions, and download filtered data.
+- **Evaluation reports:** Review MAE, RMSE, R², prediction plots, and residuals.
 
 ## Technologies
-Python, Pandas, NumPy, Scikit-learn, Matplotlib, Joblib, Streamlit, Pytest. No Node.js or separate frontend server is needed.
 
-## Structure
+| Area | Technologies |
+|---|---|
+| Programming | Python |
+| Data processing | Pandas, NumPy |
+| Machine learning | Scikit-learn |
+| Visualization | Matplotlib |
+| Application interface | Streamlit |
+| Model persistence | Joblib |
+| Testing | Pytest |
+
+## Evaluation Results
+
+The included experiment used **1,500 cleaned synthetic property records**, with **1,200 for training** and **300 for testing**.
+
+| Metric | Result |
+|---|---:|
+| Selected model | Random Forest |
+| Test MAE | PKR 2,783,639 |
+| Test RMSE | PKR 4,140,835 |
+| Test R² | 0.906 |
+| Median baseline MAE | PKR 10,699,467 |
+
+Random Forest achieved the lowest mean absolute error during five-fold cross-validation on the training set.
+
+These results demonstrate performance on the included synthetic dataset. They do not establish predictive performance on real property transactions.
+
+![Actual versus predicted prices and residual distribution](reports/evaluation.png)
+
+## Project Structure
+
 ```text
 house-price-prediction/
-  app.py                      # Streamlit interface
-  train.py                    # CLI training, reports, saved model
-  generate_data.py             # Reproducible fictional data generator
-  src/data.py                 # Schema validation and deterministic cleaning
-  src/modeling.py             # Preprocessing, CV, model selection, evaluation
-  data/house_prices.csv        # Included synthetic training data
-  data/prediction_template.csv # Example input for batch predictions
-  models/                     # Created by training; models are not committed
-  reports/                    # Measured metrics, plots, test predictions
-  notebooks/house_analysis.ipynb
-  tests/test_data.py
-  requirements.txt
-  requirements-dev.txt
-  .streamlit/config.toml
-  .gitignore
+├── app.py
+├── train.py
+├── generate_data.py
+├── src/
+│   ├── __init__.py
+│   ├── data.py
+│   └── modeling.py
+├── data/
+│   ├── house_prices.csv
+│   └── prediction_template.csv
+├── models/
+│   └── house_price_model.joblib  # Created during training
+├── reports/
+│   ├── metrics.json
+│   ├── evaluation.png
+│   └── test_predictions.csv
+├── notebooks/
+│   └── house_analysis.ipynb
+├── tests/
+│   └── test_data.py
+├── .streamlit/
+│   └── config.toml
+├── requirements.txt
+├── requirements-dev.txt
+├── requirements-tested.txt
+├── VALIDATION.md
+├── .gitignore
+└── README.md
 ```
 
-## Windows / VS Code setup
-Extract the ZIP, open the extracted project folder in VS Code, and open a PowerShell terminal. Python 3.12 or 3.13 is suitable; check your available versions using `py -0p`. These commands assume Python 3.13 is installed. Run each command only after the previous one finishes successfully.
+## Getting Started
+
+### Prerequisites
+
+- Python 3.12 or 3.13
+- pip
+- VS Code or another Python editor
+
+No Node.js installation or separate frontend server is required.
+
+### Windows Setup
+
+Open PowerShell in the project directory and run each command after the previous one completes:
 
 ```powershell
-cd D:\house-price-prediction
 py -3.13 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt --timeout 120 --retries 5
+
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+
 .\.venv\Scripts\python.exe train.py
+
 .\.venv\Scripts\python.exe -m streamlit run app.py
 ```
-Open the local URL shown by Streamlit, usually http://localhost:8501. Keep the terminal open. Explicit interpreter paths avoid PowerShell activation-policy errors. On later runs, only the final command is required unless you change the data or environment.
 
-macOS/Linux:
+### macOS and Linux Setup
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+
 pip install -r requirements.txt
 python train.py
 streamlit run app.py
 ```
 
-## Dataset schema and units
-One row represents one unique property. All prices must use **PKR**, area **square feet**, and distance **km**.
+Open the address displayed in the terminal, usually **http://localhost:8501**.
 
-| Column | Description / accepted values |
+Training creates the model artifact and evaluation reports. On subsequent launches, run the Streamlit command from the same environment.
+
+## Application Pages
+
+| Page | Purpose |
 |---|---|
-| property_id | Optional identifier, excluded from modeling |
-| area_sqft | 200–20000 |
-| bedrooms, bathrooms | Whole numbers, 1–20 |
-| age_years | 0–150 |
-| parking_spaces | Whole number, 0–10 |
-| distance_to_center_km | 0–150 |
-| city | Text; demo: Islamabad, Lahore, Karachi, Peshawar, Mardan |
-| property_type | Text; demo: House, Apartment |
-| condition | Text; demo: Fair, Good, Excellent |
-| price_pkr | Positive numeric target; training only |
+| Predict a House | Enter property details and view a price estimate |
+| Model Evaluation | Review test metrics, cross-validation results, and diagnostic plots |
+| Dataset Explorer | Inspect, filter, and export property records |
+| Batch Prediction | Upload property features and download predictions |
 
-Missing or invalid features are imputed within each training fold. Missing/invalid targets are removed, never imputed. Duplicate feature vectors are removed before splitting; the first is kept, including when target values conflict. Review such conflicts for real data. Entirely empty feature columns are rejected for training. Real datasets with repeated properties must be deduplicated by property identity before use. The included sample deliberately contains missing features, a negative age, and duplicate rows.
+A batch prediction template is available at `data/prediction_template.csv`.
 
-## Use real data
-Obtain a legally reusable dataset, document its source, dates, license, units, and collection process, and map its fields to the schema. Do not merely rename columns with incompatible units. Save it as `data/real_houses.csv` and run:
+## Dataset
+
+Each record represents one property. Prices use **PKR**, covered area uses **square feet**, and distance uses **kilometers**.
+
+| Column | Description |
+|---|---|
+| `property_id` | Optional identifier; excluded from model features |
+| `area_sqft` | Covered area |
+| `bedrooms` | Number of bedrooms |
+| `bathrooms` | Number of bathrooms |
+| `age_years` | Property age |
+| `parking_spaces` | Number of parking spaces |
+| `distance_to_center_km` | Distance from the city center |
+| `city` | Property location |
+| `property_type` | Property category, such as House or Apartment |
+| `condition` | Property condition |
+| `price_pkr` | Target price; required for training only |
+
+The demonstration dataset includes Islamabad, Lahore, Karachi, Peshawar, and Mardan. It intentionally contains missing values, duplicate records, and an invalid age to demonstrate data cleaning.
+
+## Modeling Approach
+
+1. **Validate and clean:** Check required columns, normalize values, remove duplicate feature vectors, and discard invalid targets.
+2. **Split the data:** Reserve 20% of the cleaned records for final testing.
+3. **Build pipelines:** Apply numeric imputation and scaling, categorical imputation and encoding, and regression.
+4. **Compare candidates:** Use five-fold cross-validation within the training set.
+5. **Select and evaluate:** Fit the best candidate on the training split and evaluate it on the held-out test set.
+6. **Save outputs:** Export the model, metrics, test predictions, and diagnostic plots.
+
+Imputers, scalers, and encoders are fitted only on training data within each fold. The test set is not used for model selection.
+
+## Using a Real Dataset
+
+Prepare a CSV that matches the documented schema and units. Record its source, collection period, license, and any transformations applied.
+
+Save it as `data/real_houses.csv`, then run:
+
 ```powershell
-.\.venv\Scripts\python.exe train.py --data data/real_houses.csv --source-label "Your source and collection period; prices in PKR"
+.\.venv\Scripts\python.exe train.py `
+  --data data/real_houses.csv `
+  --source-label "Dataset source and collection period; prices in PKR"
 ```
-Restart Streamlit after training. Dataset uploads in the explorer are previews, not retraining. The prediction form offers demo categories; update `CATEGORIES` in `src/data.py` for your real dataset. Batch prediction accepts new categories, but their effects cannot be learned without training examples. The explorer defaults to the bundled sample; upload your real CSV to explore it.
 
-## Evaluation and limitations
-The test set is never used to select a model. Scalers, encoders, and imputers are fitted within training folds. The saved model remains fitted on the training split, so its predictions match the reported evaluation; it is not silently refitted on all rows. Reports include the input-file SHA-256 and Scikit-learn version. Small numeric changes are possible across package versions.
+Restart the application after training.
 
-MAE is the average absolute difference in PKR. RMSE emphasizes larger errors. R² measures improvement relative to a mean reference and may be negative; it is not accuracy. MAE is not an individual confidence interval. Synthetic data follows a programmed relationship, so performance on it cannot establish real-world predictive skill. Spatially related properties or later sales may require grouped or chronological evaluation rather than a random split. Missing location detail, inflation, neighborhood amenities, and sample selection can strongly affect actual housing estimates. Model extrapolation can fail; predictions are not financial advice or appraisals.
+- Uploading a CSV in the Dataset Explorer previews the data; it does not retrain the model.
+- Update `CATEGORIES` in `src/data.py` if your dataset uses different cities, property types, or conditions.
+- Review repeated property listings and conflicting prices before training.
+- Consider chronological or grouped splits when records are related by sale date, property, or neighborhood.
 
-Reference: https://scikit-learn.org/stable/common_pitfalls.html
+## Testing
 
-## Test the project
+Install the development dependencies and run the tests:
+
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python.exe -m pytest -q
 ```
-Train the model, run the UI, change property details, upload the prediction template, and download the resulting CSV. The evaluation page should match `reports/metrics.json`. The optional notebook uses the same source modules; install Jupyter separately if you want to run it.
 
-## Screenshots and charts
-The actual training evaluation chart is included below. Add your own Streamlit screenshots to `docs/screenshots/` after running the application; no simulated UI screenshots are included.
+Tests cover schema validation, invalid numeric inputs, prediction-row preservation, unseen categories, and training-only imputation.
 
-![Held-out evaluation](reports/evaluation.png)
-
-## GitHub
-Suggested repository: **house-price-prediction**
-
-Description: Python house-price regression project with data cleaning, Scikit-learn pipelines, cross-validation, MAE/RMSE evaluation, and a Streamlit prediction app.
-
-Create an empty repository on GitHub without adding a README. From the project root:
-```powershell
-git init
-git add .
-git status
-git commit -m "Add house price prediction project"
-git branch -M main
-git remote add origin https://github.com/ahadali-codes/house-price-prediction.git
-git push -u origin main
-```
-Check staged files before committing: do not include your virtual environment, secrets, or private datasets. If origin already exists, use `git remote set-url origin URL`. This is one Python application, so use one repository.
+See `VALIDATION.md` for the checks performed and their limitations.
 
 ## Deployment
-For a Streamlit host, install requirements, run `python train.py` as a build/preparation step, then start `streamlit run app.py`. On Streamlit Community Cloud, select the GitHub repository and `app.py`. Because model binaries are ignored, first train locally using the same Python and Scikit-learn versions as the host, then explicitly commit your own trusted generated model with `git add -f models/house_price_model.joblib`, together with its matching reports. Pin the tested package versions for deployment. Never load downloaded or user-uploaded Joblib/Pickle models from untrusted sources. This app only loads its own local artifact.
 
-## Future improvements
-Replace fictional data with licensed real sales records, add neighborhood/geographic features, use time-based evaluation, compare tuned boosting methods, assess error by price segment and location, calibrate prediction intervals, and record data/model versions.
+The application can run on a Python host that supports Streamlit.
 
-## Measured demo results
+Before deployment:
 
-On 1,500 cleaned synthetic properties with 1,200 training and 300 test rows, the selected model was **Random forest**. Test MAE: **PKR 2,783,639**, RMSE: **PKR 4,140,835**, R²: **0.906**. The median baseline MAE was PKR 10,699,467. These are actual outputs from this run. Random forest had the lowest training CV MAE; this is specific to the programmed synthetic dataset.
+1. Train the model using the Python and Scikit-learn versions intended for the host.
+2. Include the trusted model artifact and matching evaluation reports.
+3. Pin the tested dependency versions.
+4. Set the application entry point to `app.py`.
 
-## CV description
+Model artifacts are excluded from Git by default. If your deployment requires the model in the repository, add it explicitly:
 
-**House Price Prediction | Python, Pandas, NumPy, Scikit-learn**
+```bash
+git add -f models/house_price_model.joblib
+```
 
-Prepared a synthetic housing dataset, built regression pipelines with train-only preprocessing, and evaluated a random forest on an 80/20 split, achieving a test MAE of PKR 2,783,639. GitHub: add your published repository link.
+Only load trusted Joblib artifacts. Do not accept arbitrary model files from users.
+
+## Limitations
+
+- The bundled data is synthetic and follows a programmed price relationship.
+- Important real-world factors, including neighborhood detail, sale date, amenities, and market conditions, are not modeled.
+- Predictions outside the training distribution may be unreliable.
+- MAE describes average error; it is not a confidence interval for an individual prediction.
+- R² is a regression metric, not classification accuracy.
+
+This project is an educational demonstration and should not be used as a property appraisal tool.
+
+## Future Improvements
+
+- Train on licensed real property transaction data.
+- Add geographic, neighborhood, and time-based features.
+- Compare tuned gradient-boosting models.
+- Evaluate errors across locations and price segments.
+- Develop and assess prediction intervals.
+- Track dataset versions and model experiments.
+
+## References
+
+- [Scikit-learn: Common pitfalls and recommended practices](https://scikit-learn.org/stable/common_pitfalls.html)
