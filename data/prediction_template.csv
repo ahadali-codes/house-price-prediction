@@ -1,0 +1,6 @@
+city,area_sqft,bedrooms,bathrooms,age_years,parking_spaces,distance_to_center_km,property_type,condition
+Karachi,949.0,1,1,33,2,7.3,Apartment,Fair
+Lahore,591.0,1,1,6,1,10.6,Apartment,Excellent
+Islamabad,4701.0,6,6,4,0,15.5,House,Good
+Karachi,1388.0,1,2,22,1,9.5,Apartment,Good
+Mardan,4183.0,5,4,4,2,12.8,House,Excellent

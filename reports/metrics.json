@@ -1,0 +1,38 @@
+{
+  "selected_model": "Random forest",
+  "train_rows": 1200,
+  "test_rows": 300,
+  "mae_pkr": 2783639.3084415584,
+  "rmse_pkr": 4140834.994501243,
+  "r2": 0.9062723730732449,
+  "baseline_mae_pkr": 10699466.666666666,
+  "cross_validation": [
+    {
+      "model": "Median baseline",
+      "cv_mae_pkr": 10936650.0,
+      "cv_std_pkr": 538913.6079239009
+    },
+    {
+      "model": "Ridge regression",
+      "cv_mae_pkr": 3553872.357652858,
+      "cv_std_pkr": 120252.58037638204
+    },
+    {
+      "model": "Random forest",
+      "cv_mae_pkr": 2772711.296298802,
+      "cv_std_pkr": 121457.93959649609
+    }
+  ],
+  "random_seed": 42,
+  "split": "80/20; five-fold CV only within training set",
+  "source": "Synthetic demonstration data; not market observations",
+  "data_sha256": "eb033c3645992b82e7e6d075cefb3f34d69ea11966403c6f75f665449d8a85df",
+  "cleaning": {
+    "input_rows": 1510,
+    "output_rows": 1500,
+    "duplicates_removed": 10,
+    "invalid_targets_removed": 0,
+    "missing_or_invalid_feature_cells": 52
+  },
+  "sklearn_version": "1.9.1"
+}
